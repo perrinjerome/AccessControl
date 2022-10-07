@@ -1,4 +1,5 @@
 ##############################################################################
+# coding:utf-8
 #
 # Copyright (c) 2002 Zope Foundation and Contributors.
 #
@@ -89,17 +90,27 @@ class UserFolderTests(unittest.TestCase):
 
     def testIdentify(self):
         uf = self._makeOne()
+
         authtoken = self._makeBasicAuthToken()
-
         # Test with an unencoded value
-        name, password = uf.identify(authtoken)
-        self.assertEqual(name, 'user1')
-        self.assertEqual(password, 'secret')
-
+        self.assertEqual(uf.identify(authtoken), ('user1', 'secret'))
         # Test with a binary string
-        name, password = uf.identify(authtoken.encode('UTF-8'))
-        self.assertEqual(name, 'user1')
-        self.assertEqual(password, 'secret')
+        self.assertEqual(
+            uf.identify(authtoken.encode('UTF-8')),
+            ('user1', 'secret'))
+
+        # same when login and password are not ASCII
+        authtoken = self._makeBasicAuthToken(creds=u'ùser1:sécrèt')
+        self.assertEqual(uf.identify(authtoken), ('ùser1', 'sécrèt'))
+        self.assertEqual(
+            uf.identify(authtoken.encode('UTF-8')),
+            ('ùser1', 'sécrèt'))
+
+        # invalid cases
+        self.assertEqual(uf.identify(''), (None, None))
+        self.assertEqual(uf.identify('not basic'), (None, None))
+        from zExceptions import BadRequest
+        self.assertRaises(BadRequest, uf.identify, 'basic not valid user pass')
 
     def testGetRoles(self):
         uf = self._makeOne()
