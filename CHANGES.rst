@@ -8,6 +8,8 @@ For changes before version 3.0, see ``HISTORY.rst``.
 
 - Add preliminary support for Python 3.13 as of 3.13a3.
 
+- Support len() on dict keys(), items() and values().
+
 
 6.3 (2023-11-20)
 ----------------

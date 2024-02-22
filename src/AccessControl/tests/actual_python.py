@@ -123,6 +123,7 @@ def f7():
         access = getattr(d, meth)
         result = sorted(access())
         assert result == expected[kind], (meth, kind, result, expected[kind])
+        assert len(access()) == len(expected[kind]), (meth, kind, "len")
 
 
 f7()

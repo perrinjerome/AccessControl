@@ -127,13 +127,13 @@ def get_dict_pop(d, name):
     return guarded_pop
 
 
-def get_iter(c, name):
+def get_dict_view(c, name):
     iter = getattr(c, name)
 
-    def guarded_iter():
-        return SafeIter(iter(), c)
+    def guarded_dict_view():
+        return SafeSizedIter(iter(), c)
 
-    return guarded_iter
+    return guarded_dict_view
 
 
 def get_list_pop(lst, name):
@@ -161,8 +161,8 @@ _dict_white_list = {
 }
 
 _dict_white_list.update({
-    'keys': get_iter,
-    'values': get_iter,
+    'keys': get_dict_view,
+    'values': get_dict_view,
 })
 
 
@@ -260,6 +260,15 @@ class SafeIter:
         return ob
 
     next = __next__
+
+
+class SafeSizedIter(SafeIter):
+    def __init__(self, ob, container=None):
+        super().__init__(ob, container)
+        self._ob = ob
+
+    def __len__(self):
+        return len(self._ob)
 
 
 class NullIter(SafeIter):

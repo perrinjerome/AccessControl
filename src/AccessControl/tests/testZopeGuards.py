@@ -258,9 +258,16 @@ class TestDictGuards(GuardTestCase):
         self.assertTrue(sm.calls)
 
     def test_keys_empty(self):
-        from AccessControl.ZopeGuards import get_iter
-        keys = get_iter({}, 'keys')
+        from AccessControl.ZopeGuards import get_dict_view
+        keys = get_dict_view({}, 'keys')
         self.assertEqual(list(keys()), [])
+
+    def test_kvi_len(self):
+        from AccessControl.ZopeGuards import get_dict_view
+        for attr in ("keys", "values", "items"):
+            with self.subTest(attr):
+                it = get_dict_view({'a': 1}, attr)
+                self.assertEqual(len(it()), 1)
 
     def test_keys_validates(self):
         sm = SecurityManager()
@@ -273,8 +280,8 @@ class TestDictGuards(GuardTestCase):
         self.assertTrue(sm.calls)
 
     def test_values_empty(self):
-        from AccessControl.ZopeGuards import get_iter
-        values = get_iter({}, 'values')
+        from AccessControl.ZopeGuards import get_dict_view
+        values = get_dict_view({}, 'values')
         self.assertEqual(list(values()), [])
 
     def test_values_validates(self):
