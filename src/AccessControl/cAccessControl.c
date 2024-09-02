@@ -1847,13 +1847,16 @@ c_rolesForPermissionOn(PyObject *perm, PyObject *object,
   Py_INCREF(r);
 
   /*
-    while 1:
+    while True:
   */
   while (1)
     {
       /*
-        if hasattr(object, n):
+        try:
             roles = getattr(object, n)
+        except (AttributeError, zExceptions_Unauthorized):
+            pass
+        else:
       */
       PyObject *roles = PyObject_GetAttr(object, n);
       if (roles != NULL)

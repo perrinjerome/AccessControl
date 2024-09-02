@@ -6,6 +6,9 @@ For changes before version 3.0, see ``HISTORY.rst``.
 7.1 (unreleased)
 ----------------
 
+- Make Python implementation behave same as C implementation when using
+  ``checkPermission`` with objects raising ``Unauthorized`` in ``__getattr__``.
+
 
 7.0 (2024-05-30)
 ----------------

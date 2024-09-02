@@ -157,6 +157,15 @@ class PartlyProtectedSimpleItem3 (PartlyProtectedSimpleItem1):
     __roles__ = sysadmin_roles
 
 
+class DynamicallyUnauthorized(SimpleItemish):
+    # This class raises an Unauthorized on attribute access,
+    # similar to Zope's Shared.DC.Scripts.Bindings.UnauthorizedBinding
+    __ac_local_roles__ = {}
+
+    def __getattr__(self, name):
+        raise Unauthorized('Not authorized to access: %s' % name)
+
+
 class SimpleClass:
     attr = 1
 
@@ -173,6 +182,7 @@ class ZopeSecurityPolicyTestBase(unittest.TestCase):
         a.item1 = PartlyProtectedSimpleItem1()
         a.item2 = PartlyProtectedSimpleItem2()
         a.item3 = PartlyProtectedSimpleItem3()
+        a.d_item = DynamicallyUnauthorized()
         uf = UserFolder()
         a.acl_users = uf
         self.uf = a.acl_users
@@ -350,6 +360,11 @@ class ZopeSecurityPolicyTestBase(unittest.TestCase):
         self.assertTrue(self.policy.checkPermission('Kill',
                                                     r_subitem,
                                                     context))
+
+    def test_checkPermission_dynamically_unauthorized(self):
+        d_item = self.a.d_item
+        context = self.context
+        self.assertFalse(self.policy.checkPermission('View', d_item, context))
 
     def testUnicodeRolesForPermission(self):
         r_item = self.a.r_item
