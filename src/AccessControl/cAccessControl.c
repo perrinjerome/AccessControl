@@ -652,6 +652,7 @@ static PyExtensionClass imPermissionRoleType = {
 static PyObject *Containers = NULL;
 static PyObject *ContainerAssertions = NULL;
 static PyObject *Unauthorized = NULL;
+static PyObject *zExceptions_Unauthorized = NULL;
 static PyObject *warn= NULL;
 static PyObject *NoSequenceFormat = NULL;
 static PyObject *_what_not_even_god_should_do = NULL;
@@ -1859,6 +1860,15 @@ c_rolesForPermissionOn(PyObject *perm, PyObject *object,
         else:
       */
       PyObject *roles = PyObject_GetAttr(object, n);
+      if (roles == NULL)
+      {
+        if (! (PyErr_ExceptionMatches(PyExc_AttributeError)
+            || PyErr_ExceptionMatches(zExceptions_Unauthorized)))
+        {
+          /* re-raise */
+          return NULL;
+        }
+      }
       if (roles != NULL)
         {
 
@@ -2400,6 +2410,15 @@ module_init(void) {
 
 	IMPORT(tmp, "AccessControl.unauthorized");
 	GETATTR(tmp, Unauthorized);
+	Py_DECREF(tmp);
+	tmp = NULL;
+
+	/*| from zExceptions import Unauthorized as zExceptions_Unauthorized
+	*/
+
+	IMPORT(tmp, "zExceptions");
+	if ((zExceptions_Unauthorized = PyObject_GetAttrString(tmp, "Unauthorized")) == NULL)
+		return NULL;
 	Py_DECREF(tmp);
 	tmp = NULL;
 
