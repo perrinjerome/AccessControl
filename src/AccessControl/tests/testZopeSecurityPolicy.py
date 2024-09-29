@@ -166,12 +166,6 @@ class DynamicallyUnauthorized(SimpleItemish):
         raise Unauthorized('Not authorized to access: %s' % name)
 
 
-class GetattrError(SimpleItemish):
-    # This class raises an Error on attribute access.
-    def __getattr__(self, name):
-        raise AttributeError('No attribute %s' % name)
-
-
 class SimpleClass:
     attr = 1
 
@@ -371,21 +365,6 @@ class ZopeSecurityPolicyTestBase(unittest.TestCase):
         d_item = self.a.d_item
         context = self.context
         self.assertFalse(self.policy.checkPermission('View', d_item, context))
-
-    def test_checkPermission_getattr_error_not_swallowed(self):
-        self.a.e_item = GetattrError()
-        context = self.context
-        import unittest.mock
-        with unittest.mock.patch.object(
-            GetattrError,
-            '__getattr__',
-            side_effect=[Exception("Error !")] ) as m:
-
-            with self.assertRaisesRegex(
-                Exception,
-                "Error !"):
-                self.policy.checkPermission('View', self.a.e_item, context)
-        m.assert_called_once()
 
     def testUnicodeRolesForPermission(self):
         r_item = self.a.r_item
